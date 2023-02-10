@@ -175,7 +175,8 @@ jobs:
             aws ec2 describe-instances \
                 --query 'Reservations[*].Instances[*].PublicIpAddress' \
                 --filters "Name=tag:spec, Values=backend" \
-                --ouput text >> .circleci/ansible/inventory.txt
+                --output text >> .circleci/ansible/inventory.txt
+            cat .circleci/ansible/inventory.txt
 
       - persist_to_workspace:
           root: ~/
@@ -211,21 +212,21 @@ jobs:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 #      # Here's where you will add some code to rollback on failure
 #
-#  run-migrations:
-#    docker:
-#    # Docker image here that supports NodeJS
-#    steps:
-#      # Checkout code from git
-#      - run:
-#          name: Run migrations
-#          command: |
-#            # Your code here
-#            exit 1
-#      - run:
-#          name: Send migration results to memstash
-#          command: |
-#            # Your code here
-#            exit 1
+  run-migrations:
+    docker:
+    # Docker image here that supports NodeJS
+    steps:
+      # Checkout code from git
+      - run:
+          name: Run migrations
+          command: |
+            # Your code here
+            exit 1
+      - run:
+          name: Send migration results to memstash
+          command: |
+            # Your code here
+            exit 1
       # Here's where you will add some code to rollback on failure
 #
 #  deploy-frontend:
