@@ -38,25 +38,6 @@ commands:
              npm install
              npm run migration:revert
             fi
-#
-#  revert-migrations:
-#    description: Revert the last migration if successfully run in the current workflow.
-#    parameters:
-#    # Add parameter here
-#    steps:
-#      - run:
-#          name: Revert migrations
-#          # Add when this will run
-#          command: |
-#            # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-#            SUCCESS = 1
-#            if(( $SUCCESS==1 ));
-#            then
-#            #  cd ~/project/backend
-#            #  npm install
-#            #  Add revert code here. You can find this in the Getting Started section.
-#              exit 1
-#            fi
 
 jobs:
   build-frontend:
@@ -84,22 +65,6 @@ jobs:
       - restore_cache:
           keys: [ backend-build ]
 
-      - run:
-          name: prepare backend environment
-          command: |
-            cat \<< EOF > backend/.env
-            ENVIRONMENT=production
-            VERSION=1
-            TYPEORM_CONNECTION=postgres
-            TYPEORM_MIGRATIONS_DIR=./src/migrations
-            TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts
-            TYPEORM_MIGRATIONS=./src/migrations/*.ts
-            TYPEORM_HOST=${TYPEORM_HOST}
-            TYPEORM_PORT=${TYPEORM_PORT}
-            TYPEORM_USERNAME=${TYPEORM_USERNAME}
-            TYPEORM_PASSWORD=${TYPEORM_PASSWORD}
-            TYPEORM_DATABASE=${TYPEORM_DATABASE}
-            EOF
       - run:
           name: Back-end build
           command: |
@@ -211,6 +176,7 @@ jobs:
       - run:
           name: Add back-end ip to ansible inventory
           command: |
+            echo "[web]" > .circleci/ansible/inventory.txt
             aws ec2 describe-instances \
                 --query 'Reservations[*].Instances[*].PublicIpAddress' \
                 --filters "Name=tag:spec, Values=backend" \
@@ -236,7 +202,7 @@ jobs:
             - "46:1b:36:19:ec:e8:83:80:65:35:40:74:f8:6a:7a:df"
 
       - attach_workspace:
-          at: ~/
+          at: /tmp/workspace
 
       - run:
           name: Install dependencies
@@ -246,7 +212,7 @@ jobs:
       - run:
           name: Configure server
           command: |
-            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
+            ansible-playbook -i /tmp/workspace/inventory.txt .circleci/ansible/configure-server.yml
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
   #      # Here's where you will add some code to rollback on failure
@@ -258,23 +224,6 @@ jobs:
       - checkout
       - restore_cache:
           keys: [ backend-build ]
-
-      - run:
-          name: prepare backend environment
-          command: |
-            cat \<< EOF > backend/.env
-            ENVIRONMENT=production
-            VERSION=1
-            TYPEORM_CONNECTION=postgres
-            TYPEORM_MIGRATIONS_DIR=./src/migrations
-            TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts
-            TYPEORM_MIGRATIONS=./src/migrations/*.ts
-            TYPEORM_HOST=${TYPEORM_HOST}
-            TYPEORM_PORT=${TYPEORM_PORT}
-            TYPEORM_USERNAME=${TYPEORM_USERNAME}
-            TYPEORM_PASSWORD=${TYPEORM_PASSWORD}
-            TYPEORM_DATABASE=${TYPEORM_DATABASE}
-            EOF
       - run:
           name: Install aws-cli
           command: sudo apt update && sudo apt -y install awscli
