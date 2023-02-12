@@ -227,7 +227,7 @@ jobs:
       - run:
           name: Configure server
           command: |
-            ansible-playbook -i ~/inventory.txt .circleci/ansible/configure-server.yml
+            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
   #
@@ -296,7 +296,7 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            export BACKEND_IP=$(sed -n 2p ~/inventory.txt)
+            export BACKEND_IP=$(sed -n 2p .circleci/ansible/inventory.txt)
             export API_URL="http://${BACKEND_IP}:3030"
             echo ENVIRONMENT=production > "frontend/.env"
             echo NODE_ENV=production >> "frontend/.env"
@@ -347,8 +347,8 @@ jobs:
             cd ..
             tar -C backend -czvf artifact.tar.gz .
             cd .circleci/ansible
-            cat ~/inventory.txt
-            ansible-playbook -i ~/inventory.txt deploy-backend.yml
+            cat .circleci/ansible/inventory.txt
+            ansible-playbook -i .circleci/ansible/inventory.txt deploy-backend.yml
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
