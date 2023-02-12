@@ -202,7 +202,7 @@ jobs:
             - "19:b0:58:2f:65:5d:b6:fa:1c:f6:07:89:57:32:58:3f"
 
       - attach_workspace:
-          at: /tmp/workspace
+          at: ~/
 
       - run:
           name: Install dependencies
@@ -227,7 +227,7 @@ jobs:
       - run:
           name: Configure server
           command: |
-            ansible-playbook -i /tmp/workspace/inventory.txt .circleci/ansible/configure-server.yml
+            ansible-playbook -i ~/inventory.txt .circleci/ansible/configure-server.yml
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
   #
@@ -291,12 +291,12 @@ jobs:
             unzip awscliv2.zip
             sudo ./aws/install
       - attach_workspace:
-          at: /tmp/workspace
+          at: ~/
 
       - run:
           name: Get backend url
           command: |
-            export BACKEND_IP=$(sed -n 2p /tmp/workspace/inventory.txt)
+            export BACKEND_IP=$(sed -n 2p ~/inventory.txt)
             export API_URL="http://${BACKEND_IP}:3030"
             echo ENVIRONMENT=production > "frontend/.env"
             echo NODE_ENV=production >> "frontend/.env"
@@ -326,7 +326,7 @@ jobs:
           fingerprints:
             - "19:b0:58:2f:65:5d:b6:fa:1c:f6:07:89:57:32:58:3f"
       - attach_workspace:
-          at: /tmp/workspace
+          at: ~/
       - run:
           name: Install dependencies
           command: |
@@ -343,8 +343,8 @@ jobs:
             cd ..
             tar -C backend -czvf artifact.tar.gz .
             cd .circleci/ansible
-            cat /tmp/workspace/inventory.txt
-            ansible-playbook -i /tmp/workspace/inventory.txt deploy-backend.yml
+            cat ~/inventory.txt
+            ansible-playbook -i ~/inventory.txt deploy-backend.yml
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
