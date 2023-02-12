@@ -29,7 +29,7 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            apk add --update curl
+            apk add --update curl || sudo apt update && sudo apt install -y curl
             VAL=$(curl -k https://kvdb.io/G5EGbxmg4YFERN6Yd8rQix/migration_<<parameters.workflow_id>>)
             echo $VAL
             if(( $VAL==1 )); 
@@ -333,7 +333,7 @@ jobs:
             sudo apt update
             sudo apt install -y software-properties-common python3 tar gzip
             sudo add-apt-repository --yes --update ppa:ansible/ansible
-            sudo apt install ansible
+            sudo apt install -y ansible
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
             sudo ./aws/install
