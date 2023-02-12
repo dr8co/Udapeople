@@ -230,7 +230,6 @@ jobs:
           name: Run migrations
           command: |
             cd backend
-            npm install
             npm run migrations > migration_dump.txt
             cat migration_dump.txt
       - run:
@@ -249,23 +248,24 @@ jobs:
       - image: cimg/node:13.8.0
     steps:
       - checkout
-      - restore_cache:
-          keys: [ frontend-build ]
       - run:
           name: Install dependencies
           command: |
             sudo apt update && sudo apt install -y awscli python3 tar gzip
-            sudo npm install
+      - attach_workspace:
+          at: /tmp/workspace
 
       - run:
           name: Get backend url
           command: |
-            export BACKEND_IP=$(sed -n 2p .circleci/ansible/inventory.txt)
+            export BACKEND_IP=$(sed -n 2p /tmp/workspace/inventory.txt)
             export API_URL="http://${BACKEND_IP}:3030"
             echo ENVIRONMENT=production > "frontend/.env"
             echo NODE_ENV=production >> "frontend/.env"
             echo API_URL=$API_URL >> "frontend/.env"
             cat frontend/.env
+      - restore_cache:
+          keys: [ frontend-build ]
       - run:
           name: Deploy frontend objects
           command: |
@@ -274,29 +274,44 @@ jobs:
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
-            # Here's where you will add some code to rollback on failure
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-#
-#  deploy-backend:
-#    docker:
-#    # Docker image here that supports Ansible
-#    steps:
-#      # Checkout code from git
-#      # Add ssh keys with fingerprint
-#      # attach workspace
-#      - run:
-#          name: Install dependencies
-#          command: |
-#            # your code here
-#      - run:
-#          name: Deploy backend
-#          command: |
-#            # your code here
-#      # Here's where you will add some code to rollback on failure
-#
+  #
+  deploy-backend:
+    docker:
+      - image: python:3.11.2-alpine3.17
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - "46:1b:36:19:ec:e8:83:80:65:35:40:74:f8:6a:7a:df"
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible openssh-client tar gzip
+            cd backend
+            npm install
+      - restore_cache:
+          keys: [ backend-build ]
+      - run:
+          name: Deploy backend
+          command: |
+            cd backend
+            npm run build
+            cd ..
+            tar -C backend -czvf artifact.tar.gz .
+            cd .circleci/ansible
+            cat /tmp/workspace/inventory.txt
+            ansible-playbook -i /tmp/workspace/inventory.txt deploy-backend.yml
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+
 #  smoke-test:
 #    docker:
 #    # Lightweight Docker image
