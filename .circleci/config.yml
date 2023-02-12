@@ -225,11 +225,12 @@ jobs:
           keys: [ backend-build ]
       - run:
           name: Install aws-cli
-          command: sudo apt update && sudo apt -y install awscli
+          command: sudo apt update && sudo apt -y install awscli tar gzip curl
       - run:
           name: Run migrations
           command: |
             cd backend
+            echo "Running migrations.."
             npm run migrations > migration_dump.txt
             cat migration_dump.txt
       - run:
@@ -239,7 +240,9 @@ jobs:
               then
                 curl -k https://kvdb.io/G5EGbxmg4YFERN6Yd8rQix/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
-      # Here's where you will add some code to rollback on failure
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+
   #
   deploy-frontend:
     docker:
