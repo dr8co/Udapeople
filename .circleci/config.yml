@@ -231,7 +231,7 @@ jobs:
             ls -la /tmp/workspace
             echo "Proj"
             ls -la /tmp/workspace/project
-            cat /tmp/workspace/inventory.txt
+            cat /tmp/workspace/project/.circleci/ansible/inventory.txt
             ansible-playbook -i /tmp/workspace/inventory.txt .circleci/ansible/configure-server.yml
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
