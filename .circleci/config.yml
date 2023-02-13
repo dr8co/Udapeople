@@ -34,7 +34,7 @@ commands:
             echo $VAL
             if(( $VAL==1 )); 
             then
-             cd /tmp/workspace/project/backend
+             cd ~/project/backend
              npm install
              npm run migration:revert
             fi
@@ -184,7 +184,7 @@ jobs:
             cat .circleci/ansible/inventory.txt
 
       - persist_to_workspace:
-          root: /tmp/workspace
+          root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
 
