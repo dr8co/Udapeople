@@ -229,6 +229,7 @@ jobs:
           command: |
             ls /tmp
             ls /tmp/workspace
+            ls /tmp/workspace/project
             cat /tmp/workspace/inventory.txt
             ansible-playbook -i /tmp/workspace/inventory.txt .circleci/ansible/configure-server.yml
       - destroy-environment:
