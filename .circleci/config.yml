@@ -34,7 +34,7 @@ commands:
             echo $VAL
             if(( $VAL==1 )); 
             then
-             cd ~/project/backend
+             cd /tmp/workspace/project/backend
              npm install
              npm run migration:revert
             fi
@@ -184,7 +184,7 @@ jobs:
             cat .circleci/ansible/inventory.txt
 
       - persist_to_workspace:
-          root: ~/
+          root: /tmp/workspace
           paths:
             - project/.circleci/ansible/inventory.txt
 
@@ -202,7 +202,7 @@ jobs:
             - "19:b0:58:2f:65:5d:b6:fa:1c:f6:07:89:57:32:58:3f"
 
       - attach_workspace:
-          at: ~/
+          at: /tmp/workspace
 
       - run:
           name: Install dependencies
@@ -227,8 +227,8 @@ jobs:
       - run:
           name: Configure server
           command: |
-            cat .circleci/ansible/inventory.txt
-            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
+            cat /tmp/workspace/inventory.txt
+            ansible-playbook -i /tmp/workspace/inventory.txt .circleci/ansible/configure-server.yml
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
   #
@@ -292,7 +292,7 @@ jobs:
             unzip awscliv2.zip
             sudo ./aws/install
       - attach_workspace:
-          at: ~/
+          at: /tmp/workspace
 
       - run:
           name: Get backend url
@@ -327,7 +327,7 @@ jobs:
           fingerprints:
             - "19:b0:58:2f:65:5d:b6:fa:1c:f6:07:89:57:32:58:3f"
       - attach_workspace:
-          at: ~/
+          at: /tmp/workspace
       - run:
           name: Install dependencies
           command: |
@@ -348,8 +348,8 @@ jobs:
             cd ..
             tar -C backend -czvf artifact.tar.gz .
             cd .circleci/ansible
-            cat .circleci/ansible/inventory.txt
-            ansible-playbook -i .circleci/ansible/inventory.txt deploy-backend.yml
+            cat /tmp/workspace/inventory.txt
+            ansible-playbook -i /tmp/workspace/inventory.txt deploy-backend.yml
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
