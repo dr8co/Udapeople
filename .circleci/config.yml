@@ -207,13 +207,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            sudo apt update
-            sudo apt install -y software-properties-common tar gzip
-            sudo add-apt-repository --yes --update ppa:ansible/ansible
-            sudo apt install -y ansible
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
+            apk add --update ansible aws-cli tar gzip
 
       - run:
           name: Update environment variables
@@ -233,6 +227,7 @@ jobs:
       - run:
           name: Configure server
           command: |
+            cat .circleci/ansible/inventory.txt
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
