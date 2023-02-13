@@ -227,12 +227,8 @@ jobs:
       - run:
           name: Configure server
           command: |
-            #ls /tmp
-            ls -la /tmp/workspace
-            echo "Proj"
-            ls -la /tmp/workspace/project
             cat /tmp/workspace/project/.circleci/ansible/inventory.txt
-            ansible-playbook -i /tmp/workspace/inventory.txt .circleci/ansible/configure-server.yml
+            ansible-playbook -i /tmp/workspace/project/.circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
   #
@@ -280,7 +276,7 @@ jobs:
               curl -k https://kvdb.io/G5EGbxmg4YFERN6Yd8rQix/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
       - destroy-environment:
-          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
   #
   deploy-frontend:
@@ -301,7 +297,7 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            export BACKEND_IP=$(sed -n 2p .circleci/ansible/inventory.txt)
+            export BACKEND_IP=$(sed -n 2p /tmp/workspace/project/.circleci/ansible/inventory.txt)
             export API_URL="http://${BACKEND_IP}:3030"
             echo ENVIRONMENT=production > "frontend/.env"
             echo NODE_ENV=production >> "frontend/.env"
@@ -318,9 +314,9 @@ jobs:
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       - destroy-environment:
-          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
       - revert-migrations:
-          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
   #
   deploy-backend:
     docker:
@@ -352,12 +348,12 @@ jobs:
             cd ..
             tar -C backend -czvf artifact.tar.gz .
             cd .circleci/ansible
-            cat /tmp/workspace/inventory.txt
-            ansible-playbook -i /tmp/workspace/inventory.txt deploy-backend.yml
+            cat /tmp/workspace/project/.circleci/ansible/inventory.txt
+            ansible-playbook -i /tmp/workspace/project/.circleci/ansible/inventory.txt deploy-backend.yml
       - destroy-environment:
-          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
       - revert-migrations:
-          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
 #  smoke-test:
 #    docker:
