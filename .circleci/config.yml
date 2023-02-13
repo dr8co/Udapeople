@@ -234,8 +234,8 @@ jobs:
           name: Configure server
           command: |
             cat /tmp/workspace/project/.circleci/ansible/inventory.txt
-            ansible -m ping $(sed -n 2p /tmp/workspace/project/.circleci/ansible/inventory.txt)
-            ansible-playbook -i /tmp/workspace/project/.circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
+            ansible ping $(sed -n 2p /tmp/workspace/project/.circleci/ansible/inventory.txt)
+            ansible-playbook -i /tmp/workspace/project/.circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml -vvvv
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
   #
