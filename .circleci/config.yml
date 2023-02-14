@@ -214,7 +214,7 @@ jobs:
             #curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             #unzip awscliv2.zip
             #sudo ./aws/install
-            apk add --update ansible aws-cli
+            apk add --no-cache --update ansible aws-cli tar gzip
 
 #      - run:
 #          name: Update environment variables
