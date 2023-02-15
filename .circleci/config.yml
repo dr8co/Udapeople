@@ -252,20 +252,20 @@ jobs:
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
             sudo ./aws/install
-      - run:
-          name: Update environment variables
-          command: |
-            echo ENVIRONMENT=production > "backend/.env"
-            echo TYPEORM_CONNECTION=postgres >> "backend/.env"
-            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> "backend/.env"
-            echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> "backend/.env"
-            echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> "backend/.env"
-            echo NODE_ENV=production >> "backend/.env"
-            echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/.env"
-            echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
-            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
-            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
-            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
+#      - run:
+#          name: Update environment variables
+#          command: |
+#            echo ENVIRONMENT=production > "backend/.env"
+#            echo TYPEORM_CONNECTION=postgres >> "backend/.env"
+#            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> "backend/.env"
+#            echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> "backend/.env"
+#            echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> "backend/.env"
+#            echo NODE_ENV=production >> "backend/.env"
+#            echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/.env"
+#            echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
+#            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
+#            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
+#            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
 
       - run:
           name: Run migrations
@@ -281,8 +281,8 @@ jobs:
             then
               curl -k https://kvdb.io/G5EGbxmg4YFERN6Yd8rQix/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
-#      - destroy-environment:
-#          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - destroy-environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
   #
   deploy-frontend:
@@ -350,10 +350,13 @@ jobs:
           name: Deploy backend
           command: |
             cd backend
+            npm i
             npm run build
             cd ..
             tar -C backend -czvf artifact.tar.gz .
+            cp artifact.tar.gz .circleci/ansible/roles/deploy/artifact.tar.gz
             cd .circleci/ansible
+            echo "Contents  of the inventory.txt file is -------"
             cat /tmp/workspace/project/.circleci/ansible/inventory.txt
             ansible-playbook -i /tmp/workspace/project/.circleci/ansible/inventory.txt deploy-backend.yml -vvvv
       - destroy-environment:
