@@ -246,6 +246,8 @@ jobs:
             npm run migrations > migration_dump.txt
             echo -e "\n--------Contents of migration_dump.txt-----------\n\n"
             cat migration_dump.txt
+            echo -e "\n--- working dir -----\n"
+            pwd
       - run:
           name: Send migration results to kvdb
           command: |
