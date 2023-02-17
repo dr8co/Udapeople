@@ -442,6 +442,10 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
+          name: Install dependencies
+          command: |
+            yum install -y tar gzip
+      - run:
           name: Retrieve the old stack workflow id
           command: |
             export OldWorkflowID=$(cat ~/OldWorkflowID.txt)
