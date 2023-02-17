@@ -248,6 +248,8 @@ jobs:
             cat migration_dump.txt
             echo -e "\n--- working dir -----\n"
             pwd
+            echo -e "\n--- contents of backend -----\n"
+            ls ~/project/backend/ -1
       - run:
           name: Send migration results to kvdb
           command: |
@@ -258,6 +260,8 @@ jobs:
             
             echo -e "\n--- working dir -----\n"
             pwd
+            echo -e "\n--- contents of backend -----\n"
+            ls ~/project/backend/ -1
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
