@@ -246,22 +246,15 @@ jobs:
             npm run migrations > migration_dump.txt
             echo -e "\n--------Contents of migration_dump.txt-----------\n\n"
             cat migration_dump.txt
-            echo -e "\n--- working dir -----\n"
-            pwd
-            echo -e "\n--- contents of backend -----\n"
-            ls ~/project/backend/ -1
+
       - run:
           name: Send migration results to kvdb
           command: |
-            if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
+            if grep -q "has been executed successfully." ~/project/backend/migration_dump.txt
             then
               curl -k https://kvdb.io/G5EGbxmg4YFERN6Yd8rQix/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
-            
-            echo -e "\n--- working dir -----\n"
-            pwd
-            echo -e "\n--- contents of backend -----\n"
-            ls ~/project/backend/ -1
+
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
