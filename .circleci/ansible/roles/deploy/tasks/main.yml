@@ -15,15 +15,11 @@
   apt:
     upgrade: yes
 
-- name: "Creates backend app directory"
-  file:
-    path: ~/backend-app
-    state: directory
-
 - name: "Unarchive backend files"
+  become: true
   unarchive:
     src: artifact.tar.gz
-    dest: ~/backend-app
+    dest: .
 
 - name: Install npm
   become: true
@@ -31,7 +27,7 @@
     name: npm
     state: present
 
-- name: Install pm2 globally
+- name: Install pm2
   become: true
   npm:
     name: pm2
@@ -39,10 +35,8 @@
     global: yes
 
 - name: "Start application"
+  become: true
   shell: |
-    cd ~/backend-app
     npm install
     pm2 stop default
     pm2 start npm -- start
-  register: execute_node
-
