@@ -355,10 +355,6 @@ jobs:
       - run:
           name: Deploy backend
           command: |
-            # export TYPEORM_MIGRATIONS_DIR=./migrations
-            # export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
-            # export TYPEORM_MIGRATIONS=./migrations/*.ts
-            
             cd backend
             npm i
             npm run build
@@ -404,7 +400,7 @@ jobs:
             
             if curl "${API_URL}/api/status" | grep "ok"
             then
-              exit 0
+              exit 1
             else
               exit 1
             fi
@@ -415,7 +411,7 @@ jobs:
             echo ${URL} 
             if curl -s ${URL} | grep "Welcome"
             then
-              exit 0
+              exit 1
             else
               exit 1
             fi
@@ -523,44 +519,20 @@ jobs:
             fi
 
 workflows:
-#  default:
-#    jobs:
-#      - build-frontend
-#      - build-backend
-#      - test-frontend:
-#          requires: [ build-frontend ]
-#      - test-backend:
-#          requires: [ build-backend ]
-#      - scan-backend:
-#          requires: [ build-backend ]
-#      - scan-frontend:
-#          requires: [ build-frontend ]
-#      - deploy-infrastructure:
-#          requires: [ test-frontend, test-backend, scan-frontend, scan-backend ]
-#          filters:
-#            branches:
-#              only: [ master ]
-#      - configure-infrastructure:
-#          requires: [ deploy-infrastructure ]
-#      - run-migrations:
-#          requires: [ configure-infrastructure ]
-#      - deploy-frontend:
-#          requires: [ run-migrations ]
-#      - deploy-backend:
-#          requires: [ run-migrations ]
-#      - smoke-test:
-#          requires: [ deploy-backend, deploy-frontend ]
-#      - cloudfront-update:
-#          requires: [ smoke-test ]
-#      - cleanup:
-#          requires: [ cloudfront-update ]
-  debug:
+  default:
     jobs:
       - build-frontend
       - build-backend
-
+      - test-frontend:
+          requires: [ build-frontend ]
+      - test-backend:
+          requires: [ build-backend ]
+      - scan-backend:
+          requires: [ build-backend ]
+      - scan-frontend:
+          requires: [ build-frontend ]
       - deploy-infrastructure:
-          requires: [ build-frontend, build-backend ]
+          requires: [ test-frontend, test-backend, scan-frontend, scan-backend ]
           filters:
             branches:
               only: [ master ]
@@ -574,3 +546,28 @@ workflows:
           requires: [ run-migrations ]
       - smoke-test:
           requires: [ deploy-backend, deploy-frontend ]
+      - cloudfront-update:
+          requires: [ smoke-test ]
+      - cleanup:
+          requires: [ cloudfront-update ]
+
+#  debug:
+#    jobs:
+#      - build-frontend
+#      - build-backend
+#
+#      - deploy-infrastructure:
+#          requires: [ build-frontend, build-backend ]
+#          filters:
+#            branches:
+#              only: [ master ]
+#      - configure-infrastructure:
+#          requires: [ deploy-infrastructure ]
+#      - run-migrations:
+#          requires: [ configure-infrastructure ]
+#      - deploy-frontend:
+#          requires: [ run-migrations ]
+#      - deploy-backend:
+#          requires: [ run-migrations ]
+#      - smoke-test:
+#          requires: [ deploy-backend, deploy-frontend ]
