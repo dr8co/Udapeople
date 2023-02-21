@@ -514,7 +514,7 @@ jobs:
               echo "No workflow id found"
             else
               for t in "${STACKS[@]}"; do
-                if [[ ! "${t: -7}" =~ .*${CIRCLE_WORKFLOW_ID:0:7}.* ]] && [[ ! "$t" =~ .*backend." ]]; then
+                if [[ ! "${t: -7}" =~ .*${CIRCLE_WORKFLOW_ID:0:7}.* ]] && [[ ! "$t" =~ .*backend. ]]; then
                   echo -e "\n------- Cleaning up the following  set of resources: --------\n"
                   if aws s3 ls | grep "udapeople-${t: -7}"; then
                     aws s3 rm "s3://udapeople-${t: -7}" --recursive
