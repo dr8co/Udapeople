@@ -390,6 +390,7 @@ jobs:
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
             sudo ./aws/install
+
       - run:
           name: Get backend url and run backend smoke test
           command: |
@@ -407,6 +408,7 @@ jobs:
             else
               exit 1
             fi
+
       - run:
           name: Frontend smoke test.
           command: |
